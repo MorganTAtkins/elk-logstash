@@ -1,0 +1,36 @@
+version: '2'
+services:
+  logstash:
+    image: morgantatkins/elk-logstash:0.17
+    container_name: logstash
+    command: ["-f", "/usr/share/logstash/config/logstash.conf"]
+    networks:
+      log-net:
+    ports:
+      - "12201:12201/udp"
+      - "5000:5000"
+      - "5000:5000/udp"
+    environment:
+      LOG_LEVEL: info
+      INDEX_NAME: ${INDEX_NAME}
+      ELASTICSEARCH_URL: ${ELASTICSEARCH_URL}
+      aws_access_key_id: ${aws_access_key_id}
+      aws_secret_access_key: ${aws_secret_access_key}
+    labels:
+      io.rancher.scheduler.global: 'true'
+      io.rancher.container.hostname_override: logstash
+  # logspout:
+  #   image: bekt/logspout-logstash
+  #   restart: on-failure
+  #   environment:
+  #     ROUTE_URIS: logstash://logstash:5000
+  #   networks:
+  #     log-net:
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   labels:
+  #     io.rancher.scheduler.global: 'true'
+  #     io.rancher.container.hostname_override: logspout
+  #   stdin_open: true
+networks:
+  log-net:
